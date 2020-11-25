@@ -1,5 +1,7 @@
 # GoCache
 
+🇬🇧 [English](README.md) | 🇨🇳 中文
+
 ## 安装
 
 `go get github.com/AImager/gocache`

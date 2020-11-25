@@ -1,10 +1,4 @@
-# Cache
-
-<!--构建等icon-->
-
-
-<!--背景-->
-
+# GoCache
 
 ## 安装
 
@@ -13,32 +7,41 @@
 ## 使用
 
 ```go
-import "github.com/AImager/gocache/config"
-import "github.com/go-redis/redis/v8"
+package main
+
+import (
+	"context"
+	"fmt"
+
+	cache "github.com/AImager/gocache"
+	"github.com/AImager/gocache/config"
+)
 
 func main() {
-    a, b := 1, 3
-	c := &Cache{client: redis.NewClient(&redis.Options{
-		Addr: ":6379",
-    })}
+	a, b := 1, 3
+	client, _ := cache.GetClient(config.ClientConfig{
+		Addr:       "127.0.0.1:6379",
+		ClientType: config.Goredis,
+	})
+	c := &cache.Cache{Client: client}
 
-    // 装饰db查询逻辑，自动缓存
+	// 装饰获取方法，自动设置缓存
 	decoratedGetFunc := getDb
 	c.CacheWithFunc(context.TODO(), config.CacheConfig{
 		Key:    fmt.Sprintf("test_cache:a:%d:b:%d", a, b),
 		Expire: 300,
 	}, &decoratedGetFunc, getDb)
-    decoratedGetFunc(context.TODO(), a, b)
+	decoratedGetFunc(context.TODO(), a, b)
 
-    // 装饰db更新逻辑，自动删除缓存
-	decoratedDelFunc := updateDb
+	// 装饰更新方法，自动删除缓存
+	decoratedUpdateFunc := updateDb
 	c.CacheDelWithFunc(context.TODO(), config.CacheDelConfig{
 		Key: fmt.Sprintf("test_cache:a:%d:b:%d", a, b),
-	}, &decoratedDelFunc, updateDb)
-	decoratedDelFunc(context.TODO(), a, b)
+	}, &decoratedUpdateFunc, updateDb)
+	decoratedUpdateFunc(context.TODO(), a, b)
 }
 
-func getDb(ctx context.Context, a int, b string) (c int, err error) {
+func getDb(ctx context.Context, a int, b int) (c int, err error) {
 	return 1, nil
 }
 

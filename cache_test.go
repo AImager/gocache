@@ -14,17 +14,10 @@ const (
 
 func getRcConn() config.ClientI {
 	client, _ := GetClient(config.ClientConfig{
-		// Addr:       "127.0.0.1:6379",
-		Addr:       "10.64.82.45:8379",
+		Addr:       "127.0.0.1:6379",
 		ClientType: config.Goredis,
 	})
 	return client
-}
-
-func TestGoRedisClient(t *testing.T) {
-
-	c := &Cache{Client: getRcConn()}
-	c.Client.Do(context.TODO(), "set", "test_cong", "1", "ex", -1)
 }
 
 func testDb(ctx context.Context, a int, b string) (c int, err error) {
